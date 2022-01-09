@@ -6,7 +6,7 @@ import {
   useSearchParams
 } from "remix";
 import { db } from "~/utils/db.server";
-import { createUserSession, login } from "~/utils/session.server";
+import { createUserSession, login, register } from "~/utils/session.server";
 import stylesUrl from "../styles/login.css";
 
 export const links: LinksFunction = () => {
@@ -89,7 +89,13 @@ export const action: ActionFunction = async ({
           formError: `User with username ${username} already exists`
         });
       }
-      // create the user
+      const user = await register({ username, password });
+      if (!user) {
+        return badRequest({
+          fields,
+          formError: `Something went wrong trying to create a new user.`
+        });
+      }
       // create their session and redirect to /jokes
       return badRequest({
         fields,
